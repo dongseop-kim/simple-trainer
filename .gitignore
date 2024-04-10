@@ -1,2 +1,5 @@
 # personal
 user-requirements.txt
+
+# temporary files
+__pycache__/
