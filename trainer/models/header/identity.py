@@ -1,8 +1,9 @@
-import torch.nn as nn
 from torch import Tensor as T
 
+from .base import BaseHeader
 
-class IdentityHeader(nn.Module):
+
+class IdentityHeader(BaseHeader):
     """
     Identity decoder that does not change the input.
 
@@ -16,5 +17,5 @@ class IdentityHeader(nn.Module):
                  in_strides: int | list[int]):
         super().__init__(num_classes=num_classes, in_channels=in_channels, in_strides=in_strides)
 
-    def forward(self, x: T | list[T]) -> T | list[T]:
+    def forward(self, x: T | list[T], target=None) -> T | list[T]:
         return x

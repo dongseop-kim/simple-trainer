@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 
 from .decoder import BaseDecoder, build_decoder
-from .header.builder import build_header
+from .header import build_header
 
 
 def build_encoder(name: str, pretrained=True, **kwargs) -> timm.models._features.FeatureListNet:
