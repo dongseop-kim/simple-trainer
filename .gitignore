@@ -1,5 +1,6 @@
 # personal
 user-requirements.txt
+test_*.ipynb
 
 # temporary files
 __pycache__/
