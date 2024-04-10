@@ -1,22 +1,19 @@
-import argparse
 import shutil
 from pathlib import Path
-from typing import Any
 
 import hydra
 from omegaconf import DictConfig
-from pytorch_lightning import LightningDataModule, Trainer
+from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import (LearningRateMonitor, ModelCheckpoint,
                                          RichModelSummary, RichProgressBar)
+from univdt.datamodules import BaseDataModule
 
-# from trainer.datamodule import TBDataModule
 from trainer.models import Model
-# from trainer.utils.common import load_config
 
 
 def train_all(config: DictConfig):
     '''Build DataModule'''
-    datamodule: LightningDataModule = TBDataModule(**config['config_datamodule'])
+    datamodule: BaseDataModule = hydra.utils.instantiate(config.config_datamodule)
     datamodule.prepare_data()
     datamodule.setup('fit')
     train_dataloader = datamodule.train_dataloader()
@@ -25,7 +22,8 @@ def train_all(config: DictConfig):
     print(len(val_dataloader), val_dataloader.batch_size, len(val_dataloader.dataset))
 
     '''Build Model'''
-    num_classes: int = 1
+    # TODO : num_classes를 datamodule 또는 config 등에서 가져오도록 수정, 일단 하드 코딩 함.
+    num_classes: int = 10
 
     model: Model = hydra.utils.instantiate(config.config_model, num_classes=num_classes)
 
@@ -58,6 +56,9 @@ def train_all(config: DictConfig):
 
 
 if __name__ == '__main__':
+    import argparse
+
+    from trainer.utils.config import load_config
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, required=True)
     args = parser.parse_args()

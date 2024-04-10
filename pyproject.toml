@@ -1,0 +1,26 @@
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "DEBUG"
+addopts = "-s"
+
+# https://packaging.python.org/en/latest/guides/writing-pyproject-toml
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simpletrainer"
+version = "0.0.1"
+description = "simple trainer"
+authors = [{name = "Pradyun dongseopkim", email = "k_ds1028@naver.com"}]
+readme = "README.md"
+keywords = ["python"]
+requires-python = ">=3.10"
+dependencies = ["git+https://github.com/dongseop-kim/universal-datasets.git",
+                "torch>=1.13.0",
+                "pytest",
+                ]
+
+[project.urls]
+Repository = "https://github.com/dongseop-kim/simple-trainer.git"
+Issues = "https://github.com/dongseop-kim/simple-trainer/issues"

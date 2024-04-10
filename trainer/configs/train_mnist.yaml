@@ -1,0 +1,63 @@
+
+config_datamodule:
+  _target_: univdt.datamodules.BaseDataModule
+  data_dir: '/data1/dongseopkim/datasets/mnist'
+  datasets: 'mnist'
+  num_workers: 0
+  
+  split_train: 'train'
+  split_val: 'test'
+  split_test: 'test'
+
+  batch_size: 128
+  batch_size_train: 128
+  batch_size_val: 32
+  batch_size_test: 32
+
+  transforms_train:
+    random_resize:
+      height: 32
+      width: 32
+    random_flip:
+      p: 0.5
+    random_blur:
+      magnitude: 0.2
+      p: 0.5
+    random_gamma:
+      magnitude: 0.2
+      p: 0.5
+    random_noise:
+      magnitude: 0.2
+      p: 0.5
+    random_brightness:
+      magnitude: 0.2
+      p: 0.5
+    random_contrast:
+      magnitude: 0.2
+      p: 0.5
+
+  transforms_val:
+    resize:
+      height: 32
+      width: 32
+  
+  transforms_test:
+    resize:
+      height: 32
+      width: 32
+    
+
+
+
+
+config_model:
+  _target_: trainer.models.Model
+  encoder:
+    name: 'resnet10t.c3_in1k'
+    in_chans: 1
+    out_indices: [4]
+  decoder:
+    name: 'identity'
+  header:
+    name: 'identity'
+    
