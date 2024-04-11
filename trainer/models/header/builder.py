@@ -1,8 +1,10 @@
 from typing import List
 
 from .identity import IdentityHeader
+from .linear import LinearHeader
 
 available_headers = {'identity': IdentityHeader,
+                     'linear': LinearHeader,
                      }
 
 

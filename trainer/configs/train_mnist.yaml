@@ -1,3 +1,10 @@
+project: 'classification-sample'
+name: 'test_00'
+
+base_lr: 0.0001
+devcies: [0]
+max_epochs: 50
+save_dir: '/data1/dongseopkim/experiment_logs/samples'
 
 config_datamodule:
   _target_: univdt.datamodules.BaseDataModule
@@ -9,10 +16,10 @@ config_datamodule:
   split_val: 'test'
   split_test: 'test'
 
-  batch_size: 128
-  batch_size_train: 128
-  batch_size_val: 32
-  batch_size_test: 32
+  batch_size: 512
+  batch_size_train: 512
+  batch_size_val: 128
+  batch_size_test: 128
 
   transforms_train:
     random_resize:
@@ -48,10 +55,9 @@ config_datamodule:
     
 
 
-
-
 config_model:
   _target_: trainer.models.Model
+  num_classes: 10
   encoder:
     name: 'resnet10t.c3_in1k'
     in_chans: 1
@@ -59,5 +65,47 @@ config_model:
   decoder:
     name: 'identity'
   header:
-    name: 'identity'
+    name: 'linear'    
+    return_logits: True
     
+
+config_optimizer:
+  _target_: torch.optim.RAdam
+  lr: ${base_lr}
+
+config_scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  T_max: ${max_epochs}
+  eta_min: 0.001 # base_lr * 0.01
+
+config_engine:
+  _target_: trainer.engine.ClassificationEngine
+  criterion: ce
+    
+
+config_logger:
+  _target_: pytorch_lightning.loggers.wandb.WandbLogger
+  project: ${project}
+  name: ${name}
+  save_dir: ${save_dir}
+  offline: False
+  id: null 
+  log_model: False
+  prefix: ""
+  job_type: "train"
+  group: ""
+  tags: []
+
+
+config_trainer:
+  _target_:  pytorch_lightning.Trainer
+  min_epochs: 1
+  max_epochs: ${max_epochs}
+  
+  accelerator: 'gpu'
+  devices: ${devcies}
+  precision: '16-mixed' # auto mixed precsion
+  accumulate_grad_batches: 1 # gradient accumulation
+  
+  log_every_n_steps: 1
+  num_sanity_val_steps: 2
