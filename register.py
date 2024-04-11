@@ -16,7 +16,7 @@ def register_model(experiment_id, model_name, model_path):
 
     with mlflow.start_run(experiment_id=experiment_id) as run:
         model = onnx.load_model(model_path)
-        mlflow.onnx.log_model(model, model_name)
+        mlflow.onnx.log_model(onnx_model=model, artifact_path='onnx-model', registered_model_name=model_name)
 
     print(f"Model '{model_name}' registered in experiment '{experiment_id}'")
 

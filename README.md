@@ -47,7 +47,32 @@ onnx로 exporting
     $ python3 /opt/simple-trainer/register.py --experiment-id 0 --model-name test-01 --model-path path/to/your/onnxfile
 ```
 
-## 3. inference 
+## 3. predict
+predict image with registered model
+
+```bash
+    # e.g. python3 predict.py --image ./assets/test_7.png
+    $ python3 predict.py --image path/to/your/image
+
+    >>>
+            ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ                
+            ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ                
+                        ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ             
+                                    ㅁ ㅁ ㅁ                
+                                    ㅁ ㅁ ㅁ                
+                                    ㅁ ㅁ                   
+                                 ㅁ ㅁ ㅁ                   
+                              ㅁ ㅁ ㅁ                      
+                              ㅁ ㅁ                         
+                           ㅁ ㅁ ㅁ                         
+                        ㅁ ㅁ ㅁ                            
+                        ㅁ ㅁ ㅁ                            
+                     ㅁ ㅁ ㅁ                               
+                     ㅁ ㅁ ㅁ                               
+                     ㅁ ㅁ ㅁ                               
+        
+        Predicted class: 7
+```
 
 
 
