@@ -9,7 +9,7 @@ host는 linux 환경을 기준으로 설명합니다. gpu 사용시 driver versi
     $ docker build -t simple-trainer:v1.0 -f ./docker/Dockerfile .
     $ docker run -it --rm --gpus all simple-trainer:v1.0 /bin/bash
     # in container
-    $ python3 trainer/train_all.py --config ./trainer/configs/train_mnist.yaml
+    $ python3 trainer/train_all.py --config ./trainer/configs/train_mnist.yaml # sample test
 ```
 
 
@@ -30,6 +30,10 @@ trainer/configs/train_mnist.yaml 의 save_dir, data_dir 등을 수정합니다. 
 ### 2.2 training model 구현
 
 현 repo에서는 모델은 크게 encoder, decoder, header로 구분 됩니다. encoder는 timm 패키지를 적극 사용하며, decoder 및 header는 각자 task에 맞춰 구현합니다. 
+
+### 2.3 export trained model
+
+
 
 
 ## 3. inference 
