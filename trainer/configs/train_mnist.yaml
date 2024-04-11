@@ -4,11 +4,11 @@ name: 'test_00'
 base_lr: 0.0001
 devcies: [0]
 max_epochs: 50
-save_dir: 'save/to/dir'
+save_dir: '/opt/simple-trainer/logs' # path to save logs
 
 config_datamodule:
   _target_: univdt.datamodules.BaseDataModule
-  data_dir: 'data/to/dir'
+  data_dir: '/opt/simple-trainer/data' # path to your data
   datasets: 'mnist' # e.g., mnist
   num_workers: 0
   
