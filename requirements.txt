@@ -2,7 +2,7 @@
 
 git+https://github.com/dongseop-kim/universal-datasets.git
 torch>=1.13.0
-torchvision>=1.14.1
+torchvision>=0.14.1
 torchmetrics>=1.2.1
 albumentations>=1.3.1
 pytest
