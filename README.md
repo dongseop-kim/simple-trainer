@@ -32,9 +32,12 @@ trainer/configs/train_mnist.yaml 의 save_dir, data_dir 등을 수정합니다. 
 현 repo에서는 모델은 크게 encoder, decoder, header로 구분 됩니다. encoder는 timm 패키지를 적극 사용하며, decoder 및 header는 각자 task에 맞춰 구현합니다. 
 
 ### 2.3 export trained model
+onnx로 exporting 
 
-
-
+```bash
+    $ python3 export.py --help
+    $ python3 export.py --config config/to/your/config.yaml --weight path/to/your/weightfile --output path/to/your/onnxfile
+```
 
 ## 3. inference 
 
