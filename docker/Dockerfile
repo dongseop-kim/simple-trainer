@@ -10,6 +10,11 @@ RUN apt-get -y clean && apt-get -y update && \
 # clone this repository and install requirements
 RUN git clone https://github.com/dongseop-kim/simple-trainer.git
 RUN cd simple-trainer && python3 -m pip install -r requirements.txt
-WORKDIR /opt/simple-trainer
+
+# set environment variables
+ARG PROJECT_ROOT=/opt/simple-trainer
+ENV PATH=${PROJECT_ROOT}:$PATH
+ENV PYTHON${PROJECT_ROOT}
+WORKDIR ${PROJECT_ROOT}
 
 CMD ["/bin/bash"]
