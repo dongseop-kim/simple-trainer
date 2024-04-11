@@ -3,5 +3,11 @@ user-requirements.txt
 test_*.ipynb
 custom_*.yaml
 
+# weights file
+*.onnx
+*.pt
+*.pth
+*.ckpt
+
 # temporary files
 __pycache__/
