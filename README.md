@@ -39,6 +39,14 @@ onnx로 exporting
     $ python3 export.py --config config/to/your/config.yaml --weight path/to/your/weightfile --output path/to/your/onnxfile
 ```
 
+### 2.4 model registration
+학습된 모델을 저장하고, 추후에 사용하기 위해 모델을 등록합니다. 
+
+```bash
+    $ mlflow server --backend-store-uri ./mlruns --default-artifact-root ./mlartifacts
+    $ python3 /opt/simple-trainer/register.py --experiment-id 0 --model-name test-01 --model-path path/to/your/onnxfile
+```
+
 ## 3. inference 
 
 

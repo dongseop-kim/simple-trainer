@@ -2,6 +2,7 @@
 user-requirements.txt
 test_*.ipynb
 custom_*.yaml
+mlruns/
 
 # weights file
 *.onnx
