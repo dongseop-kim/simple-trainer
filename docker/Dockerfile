@@ -14,7 +14,7 @@ RUN cd simple-trainer && python3 -m pip install -r requirements.txt
 # set environment variables
 ARG PROJECT_ROOT=/opt/simple-trainer
 ENV PATH=${PROJECT_ROOT}:$PATH
-ENV PYTHON${PROJECT_ROOT}
+ENV PYTHONPATH=${PROJECT_ROOT}
 WORKDIR ${PROJECT_ROOT}
 
 CMD ["/bin/bash"]

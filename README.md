@@ -3,6 +3,15 @@
 ## 1. 환경 세팅
 host는 linux 환경을 기준으로 설명합니다. gpu 사용시 driver version >= 510.183 이 필요합니다. 
 
+```bash
+    $ git clone https://github.com/dongseop-kim/simple-trainer.git
+    $ cd simple-trainer
+    $ docker build -t simple-trainer:v1.0 -f ./docker/Dockerfile .
+    $ docker run -it --rm --gpus all simple-trainer:v1.0 /bin/bash
+    # in container
+    $ python3 trainer/train_all.py --config ./trainer/configs/train_mnist.yaml
+```
+
 
 ## 2. training
 전체적인 과정은 학습을 위한 config file 작성 및 학습을 위한 모델, 엔진 구현이 있습니다.
