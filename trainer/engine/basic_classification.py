@@ -63,7 +63,7 @@ class ClassificationEngine(BaseEngine):
 
     def on_validation_epoch_end(self):
         scores = self.meter_valid.compute()
-        self.log('val/top3', scores, on_step=False, on_epoch=True, prog_bar=True)
+        self.log('val/top1', scores, on_step=False, on_epoch=True, prog_bar=True)
         self.meter_valid.reset()
         self.aggregate_and_logging(self.validation_step_outputs, 'loss', prefix='val', is_step=False)
         self.validation_step_outputs.clear()
