@@ -12,3 +12,9 @@ mlruns/
 
 # temporary files
 __pycache__/
+
+# 임시용, 브랜치에서만 작업할 것
+register.py
+predict.py
+export.py
+test_*.png
