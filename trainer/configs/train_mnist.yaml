@@ -2,14 +2,14 @@ project: 'classification-sample'
 name: 'test_00'
 
 base_lr: 0.0001
-devcies: [0]
+devcies: [0] # list of gpu ids
 max_epochs: 50
 save_dir: '/opt/simple-trainer/logs' # path to save logs
 
 config_datamodule:
   _target_: univdt.datamodules.BaseDataModule
   data_dir: '/opt/simple-trainer/data' # path to your data
-  datasets: 'mnist' # e.g., mnist
+  datasets: 'mnist' # name of dataset to use (e.g. mnist) 
   num_workers: 0
   
   split_train: 'train'

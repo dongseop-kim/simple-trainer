@@ -4,17 +4,9 @@ import timm
 import torch
 import torch.nn as nn
 
+from .encoder import build_encoder
 from .decoder import BaseDecoder, build_decoder
-from .header import build_header
-
-
-def build_encoder(name: str, pretrained=True, **kwargs) -> timm.models._features.FeatureListNet:
-    timm_list = timm.list_models(pretrained=pretrained)
-    try:
-        return timm.create_model(model_name=name, pretrained=pretrained,
-                                 features_only=True, **kwargs)
-    except:
-        raise ValueError(f'Unknown model name: {name}. Available models: {timm_list}')
+from .header import BaseHeader, build_header
 
 
 class Model(nn.Module):
