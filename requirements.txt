@@ -1,4 +1,4 @@
-# 해당 파일은 추후 toml 파일로 병합 및 packaging 예정이기에 삭제 될 예정입니다.
+# 파일은 추후 toml 파일로 병합 및 packaging 진행하고 삭제하기!
 
 git+https://github.com/dongseop-kim/universal-datasets.git
 torch>=1.13.0
