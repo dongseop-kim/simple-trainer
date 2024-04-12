@@ -13,7 +13,7 @@ mlruns/
 # temporary files
 __pycache__/
 
-# 임시용, 브랜치에서만 작업할 것
+# 임시용!! 해당 파일들은 브랜치에서만 작업할 것
 register.py
 predict.py
 export.py
