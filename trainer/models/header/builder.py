@@ -1,10 +1,12 @@
 from typing import List
 
 from .identity import IdentityHeader
-from .linear import LinearHeader
+from .linear import LinearHeader, ConciseSegmentor
+
 
 available_headers = {'identity': IdentityHeader,
                      'linear': LinearHeader,
+                     'concise': ConciseSegmentor,
                      }
 
 
