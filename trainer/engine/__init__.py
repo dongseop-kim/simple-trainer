@@ -1,1 +1,2 @@
 from .basic_classification import ClassificationEngine
+from .binary_regression import BinaryRegressionEngine

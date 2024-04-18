@@ -3,8 +3,8 @@ import torch.nn as nn
 from torch import Tensor as T
 from torch.nn.functional import sigmoid
 
-from models.layers import ConvBNReLU
-from .base import BaseHeader
+from trainer.models.header.base import BaseHeader
+from trainer.models.layers import ConvBNReLU
 
 
 class LinearHeader(BaseHeader):
@@ -20,12 +20,15 @@ class LinearHeader(BaseHeader):
         super().__init__(num_classes=num_classes, in_channels=in_channels,
                          in_strides=in_strides, return_logits=return_logits)
         self.linear = nn.Conv2d(in_channels, num_classes, kernel_size=1, stride=1, padding=0, bias=True)
+        self.pool = nn.AdaptiveAvgPool2d((1, 1))
+
         # it is selected from focal loss bias setting
         self.initial_prob = torch.tensor((1.0 - init_prob) / init_prob)
-        nn.init.constant_(self.linear[0].bias, -torch.log(self.initial_prob))
+        nn.init.constant_(self.linear.bias, -torch.log(self.initial_prob))
 
     def forward(self, x: T | list[T], target=None) -> T | tuple[T, T]:
         logits = self.linear(x[0] if isinstance(x, list) else x)  # always single input
+        logits = self.pool(logits).view(-1, self.num_classes)
         output: T = sigmoid(logits)
         return (logits, output) if self.return_logits else output
 

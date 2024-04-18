@@ -22,9 +22,8 @@ def train_all(config: DictConfig):
     print(len(val_dataloader), val_dataloader.batch_size, len(val_dataloader.dataset))
 
     '''Build Model'''
-    # TODO : num_classes를 datamodule 또는 config 등에서 가져오도록 수정, 일단 하드 코딩 함.
-    num_classes: int = 10
-
+    # num_classes: int = datamodule.dataset_train.num_classes
+    num_classes: int = 1
     model: Model = hydra.utils.instantiate(config.config_model, num_classes=num_classes)
 
     '''Build Optimizer & Scheduler'''
@@ -41,8 +40,9 @@ def train_all(config: DictConfig):
     cb_model_summary = RichModelSummary(max_depth=1)
     cb_progress_bar = RichProgressBar()
     cb_lr_monitor = LearningRateMonitor(logging_interval='step')
-    # 나중에 config로 옮기기
-    cb_model_checkpoint = ModelCheckpoint(monitor='val/top1', mode='max',
+
+    # TODO: 나중에 config로 옮기기
+    cb_model_checkpoint = ModelCheckpoint(monitor='val/f1score', mode='max',
                                           save_top_k=3, save_last=False,
                                           dirpath=Path(config.save_dir) / 'checkpoints/',
                                           filename='epoch_{epoch:03d}')
