@@ -42,7 +42,7 @@ def train_all(config: DictConfig):
     cb_lr_monitor = LearningRateMonitor(logging_interval='step')
 
     # TODO: 나중에 config로 옮기기
-    cb_model_checkpoint = ModelCheckpoint(monitor='val/f1score', mode='max',
+    cb_model_checkpoint = ModelCheckpoint(monitor='val/f1', mode='max',
                                           save_top_k=3, save_last=False,
                                           dirpath=Path(config.save_dir) / 'checkpoints/',
                                           filename='epoch_{epoch:03d}')
