@@ -12,6 +12,7 @@ mlruns/
 
 # temporary files
 __pycache__/
+.vscode/
 
 # 임시용!! 해당 파일들은 브랜치에서만 작업할 것
 register.py
