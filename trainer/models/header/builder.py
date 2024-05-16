@@ -1,11 +1,11 @@
 from typing import List
 
 from .identity import IdentityHeader
-from .linear import LinearHeader, ConciseSegmentor
+from .linear import SingleConvHeader, ConciseSegmentor
 
 
 available_headers = {'identity': IdentityHeader,
-                     'linear': LinearHeader,
+                     'singleconv': SingleConvHeader,
                      'concise': ConciseSegmentor,
                      }
 

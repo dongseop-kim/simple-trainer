@@ -1,62 +1,61 @@
+import argparse
 import shutil
 from pathlib import Path
 
 import hydra
+import pytorch_lightning as pl
 from omegaconf import DictConfig
 from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import (LearningRateMonitor, ModelCheckpoint,
-                                         RichModelSummary, RichProgressBar)
+from pytorch_lightning.callbacks import (LearningRateMonitor, RichModelSummary,
+                                         RichProgressBar)
 from univdt.datamodules import BaseDataModule
 
 from trainer.models import Model
+from trainer.utils.config import load_config
 
 
-def train_all(config: DictConfig):
+def train_all(path: str, debug: bool = False):
+    config: DictConfig = load_config(path)
+    # copy to save_dir
+    save_dir = Path(config.save_dir)
+    save_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(path, save_dir / 'config.yaml')
+
     '''Build DataModule'''
     datamodule: BaseDataModule = hydra.utils.instantiate(config.config_datamodule)
-    datamodule.prepare_data()
-    datamodule.setup('fit')
-    train_dataloader = datamodule.train_dataloader()
-    val_dataloader = datamodule.val_dataloader()
-    print(len(train_dataloader), train_dataloader.batch_size, len(train_dataloader.dataset))
-    print(len(val_dataloader), val_dataloader.batch_size, len(val_dataloader.dataset))
 
     '''Build Model'''
-    # num_classes: int = datamodule.dataset_train.num_classes
-    num_classes: int = 1
-    model: Model = hydra.utils.instantiate(config.config_model, num_classes=num_classes)
+    model: Model = hydra.utils.instantiate(config.config_model)
 
-    '''Build Optimizer & Scheduler'''
+    '''Build Optimizer & Scheduler & Criterion'''
     optimizer = hydra.utils.instantiate(config.config_optimizer, params=model.parameters())
     scheduler = hydra.utils.instantiate(config.config_scheduler, optimizer=optimizer)
+    criterion = hydra.utils.instantiate(config.config_criterion)
 
     '''Build Engine'''
-    engine = hydra.utils.instantiate(config.config_engine, model=model, optimizer=optimizer, scheduler=scheduler)
+    engine = hydra.utils.instantiate(config.config_engine, model=model,
+                                     optimizer=optimizer, scheduler=scheduler, criterion=criterion)
 
     '''Build Logger'''
     logger = hydra.utils.instantiate(config.config_logger)
 
     '''Build Callbacks'''
-    cb_model_summary = RichModelSummary(max_depth=1)
-    cb_progress_bar = RichProgressBar()
-    cb_lr_monitor = LearningRateMonitor(logging_interval='step')
+    callbacks: list[pl.Callback] = list()
+    if "config_callbacks" in config:
+        callbacks = [hydra.utils.instantiate(_conf) for _conf in config.config_callbacks.values()]
+    callbacks.append(RichModelSummary(max_depth=1))
+    callbacks.append(RichProgressBar())
+    callbacks.append(LearningRateMonitor(logging_interval='step'))
 
-    # TODO: 나중에 config로 옮기기
-    cb_model_checkpoint = ModelCheckpoint(monitor='val/f1', mode='max',
-                                          save_top_k=3, save_last=False,
-                                          dirpath=Path(config.save_dir) / 'checkpoints/',
-                                          filename='epoch_{epoch:03d}')
+    if debug:
+        return config, datamodule, model, optimizer, scheduler, criterion, engine, logger, callbacks
 
     '''Build Trainer'''
-    trainer: Trainer = hydra.utils.instantiate(config.config_trainer,
-                                               callbacks=[cb_model_summary, cb_progress_bar,
-                                                          cb_lr_monitor, cb_model_checkpoint],
-                                               logger=logger)
+    trainer: Trainer = hydra.utils.instantiate(config.config_trainer, callbacks=callbacks, logger=logger)
     trainer.fit(model=engine, datamodule=datamodule)
 
 
 if __name__ == '__main__':
-    import argparse
 
     from trainer.utils.config import load_config
     parser = argparse.ArgumentParser()
@@ -66,5 +65,6 @@ if __name__ == '__main__':
     # copy to save_dir
     save_dir = Path(config.save_dir)
     save_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy(args.config, save_dir / 'config.yaml')
+
+    shutil.copyfile(args.config, save_dir / 'config.yaml', )
     train_all(config)

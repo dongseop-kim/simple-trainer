@@ -3,35 +3,24 @@ from typing import Any
 import torch
 from torchmetrics.classification import ConfusionMatrix
 
-from trainer.engine.base import BaseEngine
+from trainer.engines.base import BaseEngine
 from trainer.models import Model
 
-_EPS = 1e-7
 
-criterions = {'ce': torch.nn.CrossEntropyLoss,
-              'bce': torch.nn.BCEWithLogitsLoss}
-
-
-class BinaryRegressionEngine(BaseEngine):
-    def __init__(self, model: Model, optimizer=None, scheduler=None, criterion=None, metric=None):
+class BasicSegmentationEngine(BaseEngine):
+    def __init__(self, model: Model, optimizer=None, scheduler=None,
+                 criterion=None):
         super().__init__(model, optimizer, scheduler)
 
-        self.criterion = criterions[criterion]()
+        self.criterion = torch.nn.CrossEntropyLoss(ignore_index=255)
 
-        # hard-coded metrics
-        # TODO: 이 부분 개선하기 -> 인자로 처리 가능하도록
-        # metrics
-        self.meter_train = ConfusionMatrix(task='binary')
-        self.meter_valid = ConfusionMatrix(task='binary')
+        self.meter_train = ConfusionMatrix(task='multiclass', num_classes=11, ignore_index=255)
+        self.meter_valid = ConfusionMatrix(task='multiclass', num_classes=11, ignore_index=255)
 
     def step(self, batch: dict[str, Any]) -> dict[str, Any]:
         logit, preds = self.model(batch['image'], None)
-        loss = self.criterion(logit.squeeze(), batch['label'].squeeze().float())
+        loss = self.criterion(logit, batch['mask'].long())
         return {'loss': loss, 'logit': logit, 'preds': preds}
-
-    ''' ====================== '''
-    ''' ===== TRAINING ===== '''
-    ''' ====================== '''
 
     def training_step(self, batch: dict[str, Any], batch_idx: int) -> dict[str, Any]:
         return self.step(batch)
@@ -40,19 +29,15 @@ class BinaryRegressionEngine(BaseEngine):
         self.log('train/loss', outputs['loss'], on_step=True, on_epoch=False, prog_bar=True)
         self.train_step_outputs.append(outputs)  # save outputs
 
-        self.meter_train(outputs['preds'].squeeze(), batch['label'].squeeze())
+        self.meter_train(outputs['preds'], batch['mask'])
         scores: dict[str, torch.Tensor] = self.compute_confusion_matrix(self.meter_train)
         scores = {f'train/{k}': v for k, v in scores.items()}
         self.log_dict(scores, on_step=True, on_epoch=False, prog_bar=True)
 
     def on_train_epoch_end(self):
-        self.aggregate_and_logging(self.train_step_outputs, 'loss', prefix='train', is_step=False)
+        self.aggregate_and_logging(self.train_step_outputs, 'loss', prefix='train', step=False)
         self.train_step_outputs.clear()
         self.meter_train.reset()
-
-    ''' ====================== '''
-    ''' ===== VALIDATION ===== '''
-    ''' ====================== '''
 
     def validation_step(self, batch: dict[str, Any], batch_idx: int) -> dict[str, Any]:
         return self.step(batch)
@@ -66,7 +51,7 @@ class BinaryRegressionEngine(BaseEngine):
         scores = {f'val/{k}': v for k, v in scores.items()}
         self.log_dict(scores, on_step=False, on_epoch=True, prog_bar=True)
         self.meter_valid.reset()
-        self.aggregate_and_logging(self.validation_step_outputs, 'loss', prefix='val', is_step=False)
+        self.aggregate_and_logging(self.validation_step_outputs, 'loss', prefix='val', step=False)
         self.validation_step_outputs.clear()
 
     ''' ====================== '''

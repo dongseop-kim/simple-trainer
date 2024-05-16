@@ -1,11 +1,9 @@
 from typing import Any
 
 import torch
-import torchmetrics
-from torchmetrics import MetricCollection
-from torchmetrics.classification import ConfusionMatrix, MulticlassAccuracy
+from torchmetrics.classification import ConfusionMatrix
 
-from trainer.engine.base import BaseEngine
+from trainer.engines.base import BaseEngine
 from trainer.models import Model
 
 _EPS = 1e-7
@@ -14,7 +12,7 @@ criterions = {'ce': torch.nn.CrossEntropyLoss,
               'bce': torch.nn.BCEWithLogitsLoss}
 
 
-class ClassificationEngine(BaseEngine):
+class BinaryRegressionEngine(BaseEngine):
     def __init__(self, model: Model, optimizer=None, scheduler=None, criterion=None, metric=None):
         super().__init__(model, optimizer, scheduler)
 
@@ -22,12 +20,13 @@ class ClassificationEngine(BaseEngine):
 
         # hard-coded metrics
         # TODO: 이 부분 개선하기 -> 인자로 처리 가능하도록
-        self.meter_train = MulticlassAccuracy(10, 3)  # 10 classes, top3
-        self.meter_valid = MulticlassAccuracy(10, 1)  # 10 classes, top1
+        # metrics
+        self.meter_train = ConfusionMatrix(task='binary')
+        self.meter_valid = ConfusionMatrix(task='binary')
 
     def step(self, batch: dict[str, Any]) -> dict[str, Any]:
         logit, preds = self.model(batch['image'], None)
-        loss = self.criterion(logit.squeeze(), batch['label'].squeeze())
+        loss = self.criterion(logit.squeeze(), batch['mask'].squeeze().float())
         return {'loss': loss, 'logit': logit, 'preds': preds}
 
     ''' ====================== '''
@@ -42,11 +41,12 @@ class ClassificationEngine(BaseEngine):
         self.train_step_outputs.append(outputs)  # save outputs
 
         self.meter_train(outputs['preds'].squeeze(), batch['label'].squeeze())
-        scores = self.meter_train.compute()
-        self.log('train/top3', scores, on_step=True, on_epoch=False, prog_bar=True)
+        scores: dict[str, torch.Tensor] = self.compute_confusion_matrix(self.meter_train)
+        scores = {f'train/{k}': v for k, v in scores.items()}
+        self.log_dict(scores, on_step=True, on_epoch=False, prog_bar=True)
 
     def on_train_epoch_end(self):
-        self.aggregate_and_logging(self.train_step_outputs, 'loss', prefix='train', is_step=False)
+        self.aggregate_and_logging(self.train_step_outputs, 'loss', prefix='train', step=False)
         self.train_step_outputs.clear()
         self.meter_train.reset()
 
@@ -62,10 +62,11 @@ class ClassificationEngine(BaseEngine):
         self.meter_valid(outputs['preds'].squeeze(), batch['label'].squeeze())
 
     def on_validation_epoch_end(self):
-        scores = self.meter_valid.compute()
-        self.log('val/top1', scores, on_step=False, on_epoch=True, prog_bar=True)
+        scores = self.compute_confusion_matrix(self.meter_valid)
+        scores = {f'val/{k}': v for k, v in scores.items()}
+        self.log_dict(scores, on_step=False, on_epoch=True, prog_bar=True)
         self.meter_valid.reset()
-        self.aggregate_and_logging(self.validation_step_outputs, 'loss', prefix='val', is_step=False)
+        self.aggregate_and_logging(self.validation_step_outputs, 'loss', prefix='val', step=False)
         self.validation_step_outputs.clear()
 
     ''' ====================== '''
@@ -75,3 +76,16 @@ class ClassificationEngine(BaseEngine):
     def predict_step(self, batch: dict[str, Any], batch_idx: int):
         # TODO: implement predict_step
         pass
+
+    def compute_confusion_matrix(self, meter: ConfusionMatrix):
+        '''Compute confusion matrix'''
+        _eps = 1e-7
+        confusion_matrix: torch.Tensor = meter.compute()
+        tn, fp, fn, tp = confusion_matrix.view(-1)
+        accuracy = (tp + tn) / (tp + tn + fp + fn + _eps)
+        precision = tp / (tp + fp + _eps)
+        sensitivity = tp / (tp + fn + _eps)
+        specificity = tn / (tn + fp + _eps)
+        f1score = 2 * (precision * sensitivity) / (precision + sensitivity + _eps)
+        return {'acc': accuracy, 'prec': precision, 'sens': sensitivity,
+                'spec': specificity, 'f1': f1score}
