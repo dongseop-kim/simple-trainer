@@ -1,0 +1,28 @@
+from torch import Tensor as T
+from torch import nn
+
+
+class CrossEntropy(nn.CrossEntropyLoss):
+    def __init__(self, ignore_index: int = -100, reduction: str = 'mean',
+                 label_smoothing: float = 0.0):
+        super().__init__()
+        self.criteria = nn.CrossEntropyLoss(ignore_index=ignore_index, reduction=reduction,
+                                            label_smoothing=label_smoothing)
+
+    def forward(self, logit: T, target: T) -> dict[str, T]:
+        logit = logit.float()
+        target = target.long()
+        loss: T = self.criteria(logit, target)
+        return {'loss': loss}
+
+
+class BinaryCrossEntropy(nn.BCEWithLogitsLoss):
+    def __init__(self, reduction: str = 'mean'):
+        super().__init__()
+        self.criteria = nn.BCEWithLogitsLoss(reduction=reduction)
+
+    def forward(self, logit: T, target: T) -> dict[str, T]:
+        logit = logit.float()
+        target = target.float()
+        loss: T = self.criteria(logit, target)
+        return {'loss': loss}
