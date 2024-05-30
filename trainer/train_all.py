@@ -1,4 +1,3 @@
-import argparse
 import shutil
 from pathlib import Path
 
@@ -53,18 +52,3 @@ def train_all(path: str, debug: bool = False):
     '''Build Trainer'''
     trainer: Trainer = hydra.utils.instantiate(config.config_trainer, callbacks=callbacks, logger=logger)
     trainer.fit(model=engine, datamodule=datamodule)
-
-
-if __name__ == '__main__':
-
-    from trainer.utils.config import load_config
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, required=True)
-    args = parser.parse_args()
-    config = load_config(args.config)
-    # copy to save_dir
-    save_dir = Path(config.save_dir)
-    save_dir.mkdir(parents=True, exist_ok=True)
-
-    shutil.copyfile(args.config, save_dir / 'config.yaml', )
-    train_all(config)

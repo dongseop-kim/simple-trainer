@@ -1,0 +1,147 @@
+# hyperparameters for training
+base_dir: "/path/to/projects"
+project: "nih_findings" # project name
+name: "nih_01" # experiment name
+
+
+# hyperparameters
+devcies: [0] # num of gpu id
+num_classes: 2 # 2 classes: cardiomegaly, pneumothorax
+max_epochs: 100
+train_height: 512
+train_width: 512
+save_dir: ${base_dir}/${project}/${name}
+
+
+# datamodule configuration
+config_datamodule:
+  _target_: univdt.datamodules.BaseDataModule
+  
+  config_dataset:
+    name: "nih" # NIH
+    root_dir: "/path/to/datasets/nih"
+    target_findings: ['cardiomegaly', 'pneumothorax']
+    normal_ratio: 1.0    
+  
+  split_train: 'train'
+  split_val: 'val'
+  split_test: 'test'
+
+  batch_size_train: 64
+  batch_size_val: 64
+  batch_size_test: 64
+
+  transforms_train:
+    random_resize:
+      height: ${train_height}
+      width: ${train_width}
+    random_flip:
+      p: 0.5
+    random_aug_pixel:
+      min_n: 2
+      max_n: 6
+      transforms:
+        random_blur:
+          magnitude: 0.2
+        random_gamma:
+          magnitude: 0.2
+        random_noise:
+          magnitude: 0.2
+        random_histequal:
+          magnitude: 0.2
+        random_brightness:
+          magnitude: 0.2
+        random_contrast:
+          magnitude: 0.2
+        random_clahe:
+          magnitude: 0.2
+        random_compression:
+          magnitude: 0.2
+        random_windowing:
+          magnitude: 0.2
+    random_zoom:
+      scale: [0.8, 1.3]
+      p: 0.5
+
+  transforms_val:
+    resize:
+      height: ${train_height}
+      width: ${train_width}
+  
+  transforms_test:
+    resize:
+      height: ${train_height}
+      width: ${train_width}
+
+config_model:
+  _target_: trainer.models.Model
+  encoder:
+    name: "resnet50"
+    pretrained: True
+    num_classes: 0 # remove the head
+    features_only: True
+    in_chans: 1 
+    out_indices: [3,4]
+  decoder:
+    name: upsample_concat
+  header:
+    name: "singleconv"
+    num_classes: ${num_classes}
+    dropout: 0.2    
+    pool: "avg"
+    interpolate: False
+    return_logits: True
+    init_prob: 0.01
+
+
+config_optimizer:
+  _target_: timm.optim.AdamP
+  lr: 0.005 # 5 x 10^-3
+  weight_decay: 0.01
+
+config_scheduler:
+  _target_: trainer.schedulers.cosine.PeriodicCosineAnnealingLR
+  max_epoch: ${max_epochs}
+  iter_per_epoch: 118 # 이거 train_all에서 입력하게 하고싶다.
+  warmup_epochs: 5
+  eta_min: 0.00005 # 5 x 10^-5
+
+
+config_criterion:
+  _target_: trainer.criteria.ce.BinaryCrossEntropy
+
+
+config_engine:
+  _target_: trainer.engines.MultiLabelClassifier
+  num_labels: ${num_classes}
+
+config_logger:
+  _target_: pytorch_lightning.loggers.wandb.WandbLogger
+  project: ${project} # project name
+  name: ${name} # experiment name
+  save_dir: ${save_dir}
+
+
+config_callbacks:
+  model_checkpoint:
+    _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    monitor: 'valid/f1'
+    mode: 'max'
+    save_top_k: 3
+    save_last: False
+    filename: 'best_{epoch}_{val/mae:.2f}'
+    dirpath: ${save_dir}/checkpoints
+
+
+config_trainer:
+    _target_:  pytorch_lightning.Trainer
+    min_epochs: 1
+    max_epochs: ${max_epochs}
+    
+    accelerator: 'gpu'
+    devices: ${devcies}
+    precision: '16-mixed' # auto mixed precsion
+    accumulate_grad_batches: 1 # gradient accumulation
+    
+    log_every_n_steps: 1
+    num_sanity_val_steps: 5

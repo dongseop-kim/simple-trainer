@@ -1,8 +1,11 @@
-# personal
-user-requirements.txt
-test_*.ipynb
-custom_*.yaml
-drafts/
+### VSCODE ###
+.vscode/
+
+
+### PYTHON ###
+__pycache__
+.pytest_cache/
+
 
 # weights file
 *.onnx
@@ -10,6 +13,18 @@ drafts/
 *.pth
 *.ckpt
 
-# temporary files
-__pycache__/
-.vscode/
+
+### BUILD ###
+build/
+univdt.egg-info/
+data/
+
+
+### PERSONAL ###
+user-requirements.txt
+tmp/
+old.*.py
+
+test_*.ipynb
+custom_*.yaml
+drafts/

@@ -11,8 +11,7 @@ from trainer.models import Model
 
 # https://lightning.ai/docs/pytorch/latest/common/lightning_module.html#hooks
 class BaseEngine(LightningModule):
-    def __init__(self, model: Model, optimizer=None, scheduler=None,
-                 criterion: nn.Module = None):
+    def __init__(self, model: Model, optimizer=None, scheduler=None, criterion: nn.Module = None):
         super().__init__()
         self.model = model
         self.optimizer = optimizer

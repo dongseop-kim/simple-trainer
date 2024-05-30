@@ -22,6 +22,8 @@ class BinaryCrossEntropy(nn.BCEWithLogitsLoss):
         self.criteria = nn.BCEWithLogitsLoss(reduction=reduction)
 
     def forward(self, logit: T, target: T) -> dict[str, T]:
+        if target.shape != logit.shape:
+            target = target.view(logit.shape)
         logit = logit.float()
         target = target.float()
         loss: T = self.criteria(logit, target)
