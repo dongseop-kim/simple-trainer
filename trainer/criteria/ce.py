@@ -3,8 +3,7 @@ from torch import nn
 
 
 class CrossEntropy(nn.CrossEntropyLoss):
-    def __init__(self, ignore_index: int = -100, reduction: str = 'mean',
-                 label_smoothing: float = 0.0):
+    def __init__(self, ignore_index: int = 255, reduction: str = 'mean', label_smoothing: float = 0.0):
         super().__init__()
         self.criteria = nn.CrossEntropyLoss(ignore_index=ignore_index, reduction=reduction,
                                             label_smoothing=label_smoothing)
