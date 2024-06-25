@@ -10,10 +10,7 @@ from .header import BaseHeader, build_header
 
 
 class Model(nn.Module):
-    def __init__(self,
-                 encoder: dict[str, any] = None,
-                 decoder: dict[str, any] = None,
-                 header: dict[str, any] = None):
+    def __init__(self, encoder: dict[str, any], decoder: dict[str, any], header: dict[str, any]):
         super().__init__()
         self.encoder: nn.Module = build_encoder(**encoder)
 

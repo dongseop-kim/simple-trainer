@@ -15,7 +15,7 @@ class ConfusionMatrix(MultilabelConfusionMatrix):
 
     def __init__(self, num_labels: int, prefix: str = ''):
         super().__init__(num_labels)
-        self.prefix = prefix
+        self.prefix = prefix.rstrip('/')
 
     def compute(self) -> dict[str, torch.Tensor]:
         confusion_matrix: torch.Tensor = super().compute()

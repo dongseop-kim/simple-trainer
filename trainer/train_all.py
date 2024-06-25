@@ -29,7 +29,9 @@ def train_all(path: str, debug: bool = False):
     '''Build Optimizer & Scheduler & Criterion'''
     optimizer = hydra.utils.instantiate(config.config_optimizer, params=model.parameters())
     scheduler = hydra.utils.instantiate(config.config_scheduler, optimizer=optimizer)
-    criterion = hydra.utils.instantiate(config.config_criterion)
+    criterion = None
+    if "config_criterion" in config:
+        criterion = hydra.utils.instantiate(config.config_criterion)
 
     '''Build Engine'''
     engine = hydra.utils.instantiate(config.config_engine, model=model,

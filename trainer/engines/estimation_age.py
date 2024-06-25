@@ -1,6 +1,5 @@
 from typing import Any
 
-import torch
 from torch import Tensor as T
 from torchmetrics import MetricCollection
 
@@ -15,7 +14,7 @@ class AgeEstimator(BaseEngine):
         super().__init__(model, optimizer, scheduler, criterion)
 
         self.meter_train = MetricCollection([MAE(), RMSE()], prefix='train/')
-        self.meter_valid = MetricCollection([MAE(), RMSE()], prefix='valid/')
+        self.meter_valid = MetricCollection([MAE(), RMSE()], prefix='valid/') 
 
     def step(self, batch: dict[str, Any]) -> dict[str, Any]:
         # pop label and overwrite by age
