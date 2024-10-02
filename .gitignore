@@ -21,6 +21,7 @@ data/
 
 
 ### PERSONAL ###
+custom.py
 user-requirements.txt
 tmp/
 old.*.py
