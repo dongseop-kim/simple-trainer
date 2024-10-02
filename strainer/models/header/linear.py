@@ -4,8 +4,8 @@ import torch
 import torch.nn as nn
 from torch import Tensor as T
 
-from trainer.models.header.base import BaseHeader
-from trainer.models.layers import ConvBNReLU
+from strainer.models.header.base import BaseHeader
+from strainer.models.layers import ConvBNReLU
 
 
 class SingleConvHeader(BaseHeader):

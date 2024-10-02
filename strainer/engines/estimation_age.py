@@ -3,10 +3,10 @@ from typing import Any
 from torch import Tensor as T
 from torchmetrics import MetricCollection
 
-from trainer.engines.base import BaseEngine
-from trainer.metrics.mae import MAE
-from trainer.metrics.mse import RMSE
-from trainer.models import Model
+from strainer.engines.base import BaseEngine
+from strainer.metrics.mae import MAE
+from strainer.metrics.mse import RMSE
+from strainer.models import Model
 
 
 class AgeEstimator(BaseEngine):
@@ -14,7 +14,7 @@ class AgeEstimator(BaseEngine):
         super().__init__(model, optimizer, scheduler, criterion)
 
         self.meter_train = MetricCollection([MAE(), RMSE()], prefix='train/')
-        self.meter_valid = MetricCollection([MAE(), RMSE()], prefix='valid/') 
+        self.meter_valid = MetricCollection([MAE(), RMSE()], prefix='valid/')
 
     def step(self, batch: dict[str, Any]) -> dict[str, Any]:
         # pop label and overwrite by age

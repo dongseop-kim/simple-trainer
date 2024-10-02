@@ -1,6 +1,6 @@
 from torch import Tensor as T
 
-from trainer.models.decoder.base import BaseDecoder
+from strainer.models.decoder.base import BaseDecoder
 
 
 class IdentityDecoder(BaseDecoder):

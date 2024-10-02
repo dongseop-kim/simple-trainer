@@ -6,7 +6,7 @@ import torch.nn as nn
 from pytorch_lightning import LightningModule
 from torch import Tensor as T
 
-from trainer.models import Model
+from strainer.models import Model
 
 
 # https://lightning.ai/docs/pytorch/latest/common/lightning_module.html#hooks

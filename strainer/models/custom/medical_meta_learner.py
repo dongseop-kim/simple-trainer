@@ -1,9 +1,9 @@
 import torch.nn as nn
 from torch import Tensor as T
 
-from trainer.models import Model
-from trainer.models.header.linear import SingleConvHeader
-from trainer.models.layers import ConvBNReLU
+from strainer.models import Model
+from strainer.models.header.linear import SingleConvHeader
+from strainer.models.layers import ConvBNReLU
 
 
 class MedicalMetaModel(Model):

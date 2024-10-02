@@ -2,9 +2,9 @@ from typing import Any
 
 from torch import Tensor as T
 
-from trainer.engines.base import BaseEngine
-from trainer.metrics.confusion_matrix import ConfusionMatrix
-from trainer.models import Model
+from strainer.engines.base import BaseEngine
+from strainer.metrics.confusion_matrix import ConfusionMatrix
+from strainer.models import Model
 
 
 class MultiLabelClassifier(BaseEngine):

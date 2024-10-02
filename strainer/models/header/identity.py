@@ -1,6 +1,6 @@
 from torch import Tensor as T
 
-from trainer.models.header.base import BaseHeader
+from strainer.models.header.base import BaseHeader
 
 
 class IdentityHeader(BaseHeader):

@@ -3,8 +3,8 @@ from typing import Optional
 import torch.nn as nn
 from torch import Tensor as T
 
-from trainer.models.decoder.base import BaseDecoder
-from trainer.models.layers import Concat
+from strainer.models.decoder.base import BaseDecoder
+from strainer.models.layers import Concat
 
 
 class UpsampleConcat(BaseDecoder):

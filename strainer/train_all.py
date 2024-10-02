@@ -9,8 +9,8 @@ from pytorch_lightning.callbacks import (LearningRateMonitor, RichModelSummary,
                                          RichProgressBar)
 from univdt.datamodules import BaseDataModule
 
-from trainer.models import Model
-from trainer.utils.config import load_config
+from strainer.models import Model
+from strainer.utils.config import load_config
 
 
 def train_all(path: str, debug: bool = False):

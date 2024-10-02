@@ -74,7 +74,7 @@ config_datamodule:
       width: ${train_width}
 
 config_model:
-  _target_: trainer.models.Model
+  _target_: strainer.models.Model
   encoder:
     name: "resnet50"
     pretrained: True
