@@ -1,11 +1,13 @@
-from typing import List, Union, Dict, Type
+from typing import Dict, List, Type
+
 from strainer.models.decoder.base import BaseDecoder
 from strainer.models.decoder.identity import IdentityDecoder
-from strainer.models.decoder.multi_scale_decoder import MultiScaleFeatureFusion, ConvolutionalFeatureFusion
+from strainer.models.decoder.multi_scale import (ConvolutionalFeatureFusion,
+                                                 MultiScaleFeatureFusion)
 
 available_decoders: Dict[str, Type[BaseDecoder]] = {'identity': IdentityDecoder,
                                                     'multi_scale_fusion': MultiScaleFeatureFusion,
-                                                    'convolutional_fusion': ConvolutionalFeatureFusion,
+                                                    'convolutional_multi_scale_fusion': ConvolutionalFeatureFusion,
                                                     }
 
 

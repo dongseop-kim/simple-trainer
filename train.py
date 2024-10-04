@@ -1,6 +1,6 @@
 import argparse
 
-from trainer.train_all import train_all
+from strainer.train_all import train_all
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

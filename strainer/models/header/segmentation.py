@@ -39,10 +39,10 @@ class CompactSegmentationHead(BaseHeader):
                                   nn.Identity() if in_strides == 1 else nn.Upsample(scale_factor=in_strides, mode='bilinear'))
 
         # it is selected from focal loss bias setting
-        self.initial_prob = T((1.0 - init_prob) / init_prob)
+        self.initial_prob = torch.tensor((1.0 - init_prob) / init_prob)
         nn.init.constant_(self.conv[-2].bias, -torch.log(self.initial_prob))
 
-    def forward(self, x: T | list[T]) -> tuple[T, T] | T:
+    def forward(self, x: T | list[T], *args, **kwargs) -> tuple[T, T] | T:
         logits = self.conv(x[0] if isinstance(x, list) else x)  # always single input
         output = torch.sigmoid(logits)
         return (logits, output) if self.return_logits else output
@@ -92,7 +92,7 @@ class MultiScaleCompactSegmentationHead(CompactSegmentationHead):
         for conv in self.multi_scale_convs:
             nn.init.constant_(conv[-1].bias, -torch.log(self.initial_prob))
 
-    def forward(self, features: list[torch.Tensor]) -> tuple[list[torch.Tensor], torch.Tensor] | torch.Tensor:
+    def forward(self, features: list[torch.Tensor], *args, **kwargs) -> tuple[list[torch.Tensor], torch.Tensor] | torch.Tensor:
         logits = [conv(feature) for feature, conv in zip(features, self.multi_scale_convs)]
         logits = [F.interpolate(out, scale_factor=stride, mode='bilinear', align_corners=False)
                   for out, stride in zip(logits, self.in_strides)]
