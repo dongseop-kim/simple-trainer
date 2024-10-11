@@ -21,6 +21,7 @@ data/
 
 
 ### PERSONAL ###
+test_notebooks/
 custom.py
 user-requirements.txt
 tmp/
