@@ -33,11 +33,8 @@ class Model(nn.Module):
         x = self.header(x, target)
         return x
 
-    def load_weights(self, path: str, unwarp_key: str = 'model.'):
-        weights: dict = torch.load(path, map_location='cpu')
-        weights: dict = weights['state_dict'] if 'state_dict' in weights.keys() else weights
-        weights = {key.replace(unwarp_key, ''): weight for key, weight in weights.items()}
-        return self.load_state_dict(weights, strict=True)
+    def get_trainable_params(self):
+        return [p for p in self.parameters() if p.requires_grad]
 
     def freeze_encoder(self):
         for param in self.encoder.parameters():

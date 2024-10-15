@@ -18,7 +18,7 @@ class PeriodicCosineAnnealingLR(_LRScheduler):
     """
 
     def __init__(self, optimizer: Optimizer, max_epoch: int, iter_per_epoch: int,
-                 warmup_epochs: int = 0, eta_min: float = 0.0, last_epoch: int = -1):
+                 warmup_epochs: int = 0, eta_min: float = 0.0, last_epoch: int = -1, **kwargs):
         assert max_epoch > 0, 'max_epoch should be positive'
         assert iter_per_epoch > 0, 'iter_per_epoch should be positive'
         self.iter_max = max_epoch * iter_per_epoch

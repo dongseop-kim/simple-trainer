@@ -1,4 +1,4 @@
-from abc import abstractmethod
+import logging
 from typing import Any
 
 import torch
@@ -8,10 +8,14 @@ from torch import Tensor as T
 
 from strainer.models import Model
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # https://lightning.ai/docs/pytorch/latest/common/lightning_module.html#hooks
+
+
 class BaseEngine(LightningModule):
-    def __init__(self, model: Model, optimizer=None, scheduler=None, criterion: nn.Module = None):
+    def __init__(self, model: Model, optimizer=None, scheduler=None, criterion: nn.Module = None, **kwargs):
         super().__init__()
         self.model = model
         self.optimizer = optimizer
@@ -26,8 +30,7 @@ class BaseEngine(LightningModule):
 
     def configure_optimizers(self):
         return {'optimizer': self.optimizer,
-                'lr_scheduler': {'scheduler': self.scheduler,
-                                 'interval': 'step'}}
+                'lr_scheduler': {'scheduler': self.scheduler, 'interval': 'step'}}
 
     def aggregate_and_logging(self, outputs: list[dict[str, T]], key: str, prefix: str = None, step: bool = False):
         '''Aggregate outputs from each step and log'''
