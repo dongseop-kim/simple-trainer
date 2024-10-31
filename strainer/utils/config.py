@@ -30,7 +30,7 @@ def instantiate_engine(config: DictConfig, model: nn.Module,
     engine = hydra.utils.instantiate(config.config_engine, model=model,
                                      optimizer=optimizer, scheduler=scheduler, criterion=criterion)
     if checkpoint is not None:
-        engine = load_weights(engine, checkpoint)
+        engine.load_state_dict(load_weights(checkpoint))
     return engine
 
 
