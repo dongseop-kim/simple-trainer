@@ -1,3 +1,4 @@
+from typing import Optional, Dict
 from pathlib import Path
 from typing import Any
 
@@ -6,6 +7,8 @@ import torch
 import torch.nn as nn
 import yaml
 from omegaconf import DictConfig
+
+from strainer.utils.common import load_weights
 
 
 def load_config(config_path: str) -> DictConfig:
@@ -19,27 +22,17 @@ def instantiate_model(config: DictConfig, num_classes: int):
     return model
 
 
-def instantiate_engine(config: DictConfig, model, optimizer=None, scheduler=None, checkpoint=None):
-    engine: nn.Module = hydra.utils.instantiate(config.config_engine, model=model,
-                                                optimizer=optimizer, scheduler=scheduler)
-    if not checkpoint:
-        return engine
-    checkpoint = torch.load(checkpoint, map_location='cpu')
-    checkpoint = checkpoint['state_dict'] if 'state_dict' in checkpoint else checkpoint
-    engine.load_state_dict(checkpoint)
-    return engine
+def instantiate_engine(config: DictConfig, model: nn.Module,
+                       optimizer: Optional[torch.optim.Optimizer] = None,
+                       scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
+                       checkpoint: Optional[str] = None,
+                       criterion: Optional[nn.Module] = None) -> nn.Module:
+    engine = hydra.utils.instantiate(config.config_engine, model=model,
+                                     optimizer=optimizer, scheduler=scheduler, criterion=criterion)
+    return engine.load_state_dict(load_weights(checkpoint)) if checkpoint else engine
 
 
-def instantiate_key_from_config(config: str | Path | DictConfig,
-                                key: str, **kwargs) -> Any:
-    """
-    Instantiates object from config file.
-
-    Args:
-        config (Union[str, Path, DictConfig]): Path to yaml file or DictConfig object.
-        key (str): Key in config file. e.g. (datamodule, model, engine)
-        **kwargs: Additional arguments passed to instantiate function.
-    """
+def instantiate_key_from_config(config: str | Path | DictConfig, key: str, **kwargs) -> Any:
     if not isinstance(config, DictConfig):
         config = load_config(config)[key]
     else:
