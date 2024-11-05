@@ -18,6 +18,7 @@ __pycache__
 build/
 univdt.egg-info/
 data/
+drafts/
 
 
 ### PERSONAL ###
@@ -29,4 +30,4 @@ old.*.py
 
 test_*.ipynb
 custom_*.yaml
-drafts/
+
