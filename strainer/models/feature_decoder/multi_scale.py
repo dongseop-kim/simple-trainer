@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from strainer.models.feature_decoder.base import BaseFeatureDecoder
+from .base import BaseFeatureDecoder
 from strainer.models.layers import ConvBNReLU
 
 

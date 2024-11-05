@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 
 from strainer.models.feature_decoder import build_feature_decoder
-from strainer.models.feature_decoder.decoder_registry import (
+from strainer.models.feature_decoder.registry import (
     BaseFeatureDecoder, ConvolutionalMultiScaleDecoder, IdentityFeatureDecoder,
     MultiScaleFeatureDecoder)
 from strainer.models.feature_extractor import build_feature_extractor

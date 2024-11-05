@@ -3,14 +3,17 @@ from pathlib import Path
 
 import hydra
 import pytorch_lightning as pl
+import torch
 from omegaconf import DictConfig
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import (LearningRateMonitor, RichModelSummary,
                                          RichProgressBar)
 from univdt.datamodules import BaseDataModule
 
-from strainer.models import Model
+from strainer.models import ModelBase
 from strainer.utils.config import load_config
+
+torch.set_float32_matmul_precision('medium')  # 또는 'high'
 
 
 def train_all(path: str, debug: bool = False):
@@ -24,11 +27,12 @@ def train_all(path: str, debug: bool = False):
     datamodule: BaseDataModule = hydra.utils.instantiate(config.config_datamodule)
 
     '''Build Model'''
-    model: Model = hydra.utils.instantiate(config.config_model)
+    model: ModelBase = hydra.utils.instantiate(config.config_model)
 
     '''Build Optimizer & Scheduler & Criterion'''
     optimizer = hydra.utils.instantiate(config.config_optimizer, params=model.parameters())
-    scheduler = hydra.utils.instantiate(config.config_scheduler, optimizer=optimizer)
+    scheduler = hydra.utils.instantiate(config.config_scheduler, optimizer=optimizer,
+                                        iter_per_epoch=len(datamodule.train_dataloader()))
     criterion = None
     if "config_criterion" in config:
         criterion = hydra.utils.instantiate(config.config_criterion)
@@ -50,6 +54,22 @@ def train_all(path: str, debug: bool = False):
 
     if debug:
         return config, datamodule, model, optimizer, scheduler, criterion, engine, logger, callbacks
+
+    # tmp code
+    # engine.model.freeze_encoder()
+    # initial_optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, model.parameters()),
+    #                                     lr=0.01, momentum=0.9)
+    # initial_scheduler = torch.optim.lr_scheduler.ConstantLR(initial_optimizer, factor=1.0,
+    #                                                         total_iters=0)
+    # initial_engine = hydra.utils.instantiate(config.config_engine,
+    #                                          model=model,
+    #                                          optimizer=initial_optimizer,
+    #                                          scheduler=initial_scheduler,
+    #                                          criterion=criterion)
+    # initial_trainer: Trainer = hydra.utils.instantiate(config.config_trainer, max_epochs=5, check_val_every_n_epoch=5)
+    # initial_trainer.fit(model=initial_engine, datamodule=datamodule)
+    # engine.model.unfreeze_encoder()
+    # end tmp code
 
     '''Build Trainer'''
     trainer: Trainer = hydra.utils.instantiate(config.config_trainer, callbacks=callbacks, logger=logger)

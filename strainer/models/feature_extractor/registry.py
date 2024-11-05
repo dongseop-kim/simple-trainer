@@ -1,6 +1,5 @@
 import timm
 import torch.nn as nn
-
 from timm.models._features import FeatureListNet
 
 # Custom feature extractors registry

@@ -1,45 +1,42 @@
-from typing import Any, Optional
+from typing import Any
 
-import torch
 import torch.nn as nn
-from torch import Tensor as T
+from torch import Tensor
 
-from .decoder import BaseDecoder, build_decoder
-from .encoder import build_encoder
-from .header import BaseHeader, build_header
+from .feature_decoder import BaseFeatureDecoder, build_feature_decoder
+from .feature_extractor import build_feature_extractor
+from .prediction_head import BasePredictionHead, build_prediction_head
 
 
-class Model(nn.Module):
-    def __init__(self, encoder: dict[str, any], decoder: dict[str, any], header: dict[str, any]):
+class ModelBase(nn.Module):
+    def __init__(self,
+                 config_encoder: dict[str, any],
+                 config_decoder: dict[str, any],
+                 config_header: dict[str, any]):
         super().__init__()
-        self.encoder: nn.Module = build_encoder(**encoder)
+        self.feature_extractor: nn.Module = build_feature_extractor(**config_encoder)
 
-        feature_info = getattr(self.encoder, 'feature_info', None)
+        feature_info = getattr(self.feature_extractor, 'feature_info', None)
         if feature_info:
-            in_channels = feature_info.channels()
-            in_strides = feature_info.reduction()
+            input_channels = feature_info.channels()
+            input_scales = feature_info.reduction()
         else:
-            in_channels = decoder.pop('in_channels')
-            in_strides = decoder.pop('in_strides')
+            input_channels = config_decoder.pop('in_channels')
+            input_scales = config_decoder.pop('in_strides')
 
-        self.decoder: BaseDecoder = build_decoder(in_channels=in_channels, in_strides=in_strides, **decoder)
-        self.header: BaseHeader = build_header(in_channels=self.decoder.out_channels,
-                                               in_strides=self.decoder.out_strides, **header)
+        self.feature_decoder: BaseFeatureDecoder = build_feature_decoder(in_channels=input_channels, in_strides=input_scales,
+                                                                         **config_decoder)
+
+        self.prediction_head: BasePredictionHead = build_prediction_head(input_channels=self.feature_decoder.output_channels,
+                                                                         input_scales=self.feature_decoder.output_scales,
+                                                                         **config_header)
         self.num_classes = self.header.num_classes
 
-    def forward(self, x: T, target: Optional[dict[str, Any]] = None) -> T | dict[str, T]:
-        x = self.encoder(x)
-        x = self.decoder(x)
-        x = self.header(x, target)
-        return x
+    def forward(self, images: Tensor, targets: dict[str, Any] | None = None) -> dict[str, Tensor]:
+        features = self.feature_extractor(images)
+        decoded_features = self.feature_decoder(features)
+        predictions = self.prediction_head(decoded_features, targets)
+        return predictions
 
-    def get_trainable_params(self):
-        return [p for p in self.parameters() if p.requires_grad]
-
-    def freeze_encoder(self):
-        for param in self.encoder.parameters():
-            param.requires_grad = False
-
-    def unfreeze_encoder(self):
-        for param in self.encoder.parameters():
-            param.requires_grad = True
+    def get_trainable_parameters(self) -> list[nn.Parameter]:
+        return [param for param in self.parameters() if param.requires_grad]

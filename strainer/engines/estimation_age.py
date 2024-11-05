@@ -6,11 +6,11 @@ from torchmetrics import MetricCollection
 from strainer.engines.base import BaseEngine
 from strainer.metrics.mae import MAE
 from strainer.metrics.mse import RMSE
-from strainer.models import Model
+from strainer.models import ModelBase
 
 
 class AgeEstimator(BaseEngine):
-    def __init__(self, model: Model, optimizer=None, scheduler=None, criterion=None):
+    def __init__(self, model: ModelBase, optimizer=None, scheduler=None, criterion=None):
         super().__init__(model, optimizer, scheduler, criterion)
 
         self.meter_train = MetricCollection([MAE(), RMSE()], prefix='train/')

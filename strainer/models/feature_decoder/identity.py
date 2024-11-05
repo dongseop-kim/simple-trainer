@@ -1,6 +1,6 @@
 from torch import Tensor
 
-from strainer.models.feature_decoder import BaseFeatureDecoder
+from .base import BaseFeatureDecoder
 
 
 class IdentityFeatureDecoder(BaseFeatureDecoder):

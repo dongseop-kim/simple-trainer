@@ -1,2 +1,1 @@
-from .base import BaseFeatureDecoder
-from .decoder_registry import build_feature_decoder
+from .registry import BaseFeatureDecoder, build_feature_decoder

@@ -1,16 +1,16 @@
 import torch.nn as nn
 from torch import Tensor as T
 
-from strainer.models import Model
-from strainer.models.header.linear import SingleConvHeader
+from strainer.models import ModelBase
+from strainer.models.prediction_head.linear import SingleConvHeader
 from strainer.models.layers import ConvBNReLU
 
 
-class MedicalMetaModel(Model):
+class MedicalMetaModel(ModelBase):
     def __init__(self, encoder: dict[str, any], decoder: dict[str, any]):
-        super().__init__(encoder=encoder, decoder=decoder, header={'name': 'identity',
-                                                                   'num_classes': -1})
-        in_channels: int | list[int] = self.decoder.out_channels
+        super().__init__(config_encoder=encoder, config_decoder=decoder, config_header={'name': 'identity',
+                                                                                        'num_classes': -1})
+        in_channels: int | list[int] = self.feature_decoder.out_channels
         assert len(in_channels) == 1, "Only support single input channel."
         in_channels = in_channels[0] if isinstance(in_channels, list) else in_channels
 

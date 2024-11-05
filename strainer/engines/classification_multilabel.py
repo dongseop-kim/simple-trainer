@@ -4,11 +4,11 @@ from torch import Tensor as T
 
 from strainer.engines.base import BaseEngine
 from strainer.metrics.confusion_matrix import ConfusionMatrix
-from strainer.models import Model
+from strainer.models import ModelBase
 
 
 class MultiLabelClassifier(BaseEngine):
-    def __init__(self, model: Model, optimizer=None, scheduler=None, criterion=None, num_labels: int = 2):
+    def __init__(self, model: ModelBase, optimizer=None, scheduler=None, criterion=None, num_labels: int = 2):
         super().__init__(model, optimizer, scheduler, criterion)
 
         self.meter_train = ConfusionMatrix(num_labels=num_labels, prefix='train')

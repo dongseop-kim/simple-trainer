@@ -6,7 +6,7 @@ import torch.nn as nn
 from pytorch_lightning import LightningModule
 from torch import Tensor as T
 
-from strainer.models import Model
+from strainer.models import ModelBase
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO)
 
 
 class BaseEngine(LightningModule):
-    def __init__(self, model: Model, optimizer=None, scheduler=None, criterion: nn.Module = None, **kwargs):
+    def __init__(self, model: ModelBase, optimizer=None, scheduler=None, criterion: nn.Module = None, **kwargs):
         super().__init__()
         self.model = model
         self.optimizer = optimizer
