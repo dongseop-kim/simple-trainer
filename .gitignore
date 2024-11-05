@@ -19,15 +19,11 @@ build/
 univdt.egg-info/
 data/
 drafts/
+user-requirements.txt
 
 
 ### PERSONAL ###
+personal/
 test_notebooks/
-custom.py
-user-requirements.txt
-tmp/
-old.*.py
-
+old_*.py
 test_*.ipynb
-custom_*.yaml
-
