@@ -25,5 +25,7 @@ user-requirements.txt
 ### PERSONAL ###
 personal/
 test_notebooks/
+custom/
+custom*.py
 old_*.py
 test_*.ipynb
