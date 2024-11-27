@@ -15,7 +15,7 @@ def unwraps_keys(dictionary: dict[str, Any], src_key: str, dst_key: str) -> dict
 
 
 def load_weights(path: str, src_key: str = '', dst_key: str = '') -> dict:
-    weight = torch.load(path, map_location='cpu')
+    weight = torch.load(path, map_location='cpu', weights_only=False)
     weight = weight['state_dict'] if 'state_dict' in weight else weight
     weight = unwraps_keys(weight, src_key, dst_key)
     return weight

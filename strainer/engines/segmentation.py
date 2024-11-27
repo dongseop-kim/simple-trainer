@@ -2,27 +2,19 @@ import logging
 from typing import Any
 
 import torch
-from torch import Tensor as T
-from torch import nn
+from torch import Tensor
 from torchmetrics import (F1Score, MetricCollection, Precision, Recall,
                           Specificity)
 
-from strainer.engines.base import BaseEngine
+from strainer.engines.base import _ABBREVIATIONS, BaseEngine
 from strainer.models import ModelBase
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-_ABBREVIATIONS = {'binaryf1score': 'f1',
-                  'binaryrecall': 'sens',
-                  'binaryprecision': 'prec',
-                  'binaryspecificity': 'spec',
-                  }
-
 
 class BinarySegmentation(BaseEngine):
-    def __init__(self, model: ModelBase, optimizer=None, scheduler=None, criterion=None,
-                 freeze_encoder: bool = False, **kwargs):
+    def __init__(self, model: ModelBase, optimizer=None, scheduler=None, criterion=None, **kwargs):
         super().__init__(model, optimizer, scheduler, criterion, **kwargs)
 
         self.meter_train = MetricCollection([F1Score(task='binary'), Recall(task='binary'),
@@ -30,14 +22,11 @@ class BinarySegmentation(BaseEngine):
         self.meter_valid = MetricCollection([F1Score(task='binary'), Recall(task='binary'),
                                              Precision(task='binary'), Specificity(task='binary')])
 
-        self.freeze_encoder = freeze_encoder
-        if self.freeze_encoder:
-            self.model.freeze_encoder()
-
     def step(self, batch: dict[str, Any]) -> dict[str, Any]:
-        logit, preds = self.model(batch['image'], None)  # N x 1 x H x W
-        loss: dict = self.criterion(logit, batch['mask'])
-        loss.update({'logit': logit, 'preds': preds})
+        output: dict[str, Tensor] = self.model(batch['image'], None)
+        logits: Tensor = output['logits']
+        loss: dict[str, Tensor] = self.criterion(logits, batch['mask'])
+        loss.update(output)
         return loss
 
     def training_step(self, batch: dict[str, Any], batch_idx: int) -> dict[str, Any]:
@@ -64,10 +53,6 @@ class BinarySegmentation(BaseEngine):
         meter.update(preds, target)
 
         return {'loss': loss}
-
-    def on_train_epoch_start(self):
-        if self.freeze_encoder:
-            self.model.freeze_encoder()
 
     def on_train_batch_end(self, outputs, batch: dict[str, Any], batch_idx: int):
         batch_output = self._process_batch_end(outputs, batch, self.meter_train)
