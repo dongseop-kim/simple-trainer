@@ -55,13 +55,14 @@ class Exporter:
 
     OPSET_VERSION = 17  # ONNX opset version
 
-    def __init__(self, checkpoint_path: PathLike, model: nn.Module):
-        self.checkpoint_path = Path(checkpoint_path)
-        self.model_def = model
-        self.model: Optional[nn.Module] = None
+    def __init__(self, model: nn.Module, checkpoint_path: Optional[PathLike] = None):
+        self.model = model
 
-        self._validate_path()
-        self._load_checkpoint()
+        if checkpoint_path:
+            self.checkpoint_path = Path(checkpoint_path)
+            self._load_checkpoint()
+
+        self.model = self.model.eval().cpu()
 
     def _validate_path(self) -> None:
         """Validate checkpoint file exists."""
@@ -115,7 +116,7 @@ class Exporter:
 
         except Exception as e:
             raise ExportError(f"Failed to trace model outputs: {str(e)}") from e
-
+        print()
         return input_names, output_names
 
     def export_onnx(self, save_dir: PathLike, model_name: str, dummy_inputs: Tensor | list[Tensor]) -> ExportOutput:
@@ -148,12 +149,15 @@ class Exporter:
                               opset_version=self.OPSET_VERSION,
                               do_constant_folding=True,
                               )
+            # save meta
+            with open(meta_path, 'w') as f:
+                json.dump(meta.to_dict(), f, indent=2)
         except Exception as e:
             raise ExportError(f"Failed to export ONNX model: {str(e)}") from e
 
         # Collect model info and benchmark
         try:
-            onnx_executor = ONNXExecutor(model_path, device='cpu')
+            onnx_executor = ONNXExecutor(model_path, device='cpu', meta_path=meta_path)
             results: dict[str, float] = onnx_executor.benchmark()
 
             # Update metadata with model info

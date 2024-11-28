@@ -110,8 +110,9 @@ class ONNXExecutor(BaseExecutor[ort.InferenceSession]):
         # Benchmark
         latencies = []
         for _ in range(num_iterations):
-            result = self.run(inputs)
-            latencies.append(result.latency_ms)
+            start_time = timeit.default_timer()
+            _ = self.run(inputs)
+            latencies.append(timeit.default_timer() - start_time)
 
         avg_latency = sum(latencies) / len(latencies)
         return BenchmarkResults(fps=1000.0 / avg_latency, avg=avg_latency,
