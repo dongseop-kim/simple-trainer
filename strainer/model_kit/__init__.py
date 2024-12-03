@@ -1,2 +1,2 @@
-from .excutor import BaseExecutor
+from .executor import BaseExecutor
 from .onnx import ONNXExecutor

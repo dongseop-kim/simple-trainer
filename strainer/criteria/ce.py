@@ -5,6 +5,8 @@ from torch import nn
 class CrossEntropy(nn.CrossEntropyLoss):
     def __init__(self, ignore_index: int = 255, reduction: str = 'mean', label_smoothing: float = 0.0):
         super().__init__()
+        if not 0.0 <= label_smoothing <= 1.0:
+            raise ValueError('label_smoothing must be between 0 and 1')
         self.criteria = nn.CrossEntropyLoss(ignore_index=ignore_index, reduction=reduction,
                                             label_smoothing=label_smoothing)
 
@@ -18,6 +20,8 @@ class CrossEntropy(nn.CrossEntropyLoss):
 class BinaryCrossEntropy(nn.BCEWithLogitsLoss):
     def __init__(self, reduction: str = 'mean', label_smoothing: float = 0.0):
         super().__init__()
+        if not 0.0 <= label_smoothing <= 1.0:
+            raise ValueError('label_smoothing must be between 0 and 1')
         self.criteria = nn.BCEWithLogitsLoss(reduction=reduction)
         self.label_smoothing = label_smoothing
 

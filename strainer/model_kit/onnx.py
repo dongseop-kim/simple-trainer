@@ -7,7 +7,7 @@ import numpy as np
 import onnxruntime as ort
 
 from .base import BenchmarkResults, DeviceType, MetaData
-from .excutor import (ArrayLike, BaseExecutor, Device, DeviceError,
+from .executor import (ArrayLike, BaseExecutor, Device, DeviceError,
                       ModelLoadError, PathLike)
 
 
